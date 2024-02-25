@@ -51,6 +51,75 @@
         }
     </style>
 
+<script>
+
+
+
+    var params = {
+        "author":"Faisst, A",
+        "year1":2014,
+        "year2":2030,
+        "pos1":1,
+        "pos2":3,
+        "fields":"author,title,year,doctype,bibstem,issue,volume,page,bibcode,pubdate",
+        "rows":2000,
+        "token":"GEPfSqv6hnDSBu9xQmXIagITrsxVyCDBg6VmiJNW"
+    };
+
+    
+
+    // var search_author = params.author str_replace(" " , "+" , $params_json->author);
+    var search_author = "Faisst,+A";
+    
+    //var thisurl = "https://api.adsabs.harvard.edu/v1/search/query?q=pos%28author:%22" + search_author + "%22," + params.pos1 + "," + params.pos2 + "%29+year%3A%5B" + params.year1 + "%20TO%20" + params.year2 + "%5D&fl=" + params.fields + "&rows=" + params.rows + "&sort=date+desc";
+    // var thisurl = "https://jsonplaceholder.typicode.com/users"
+    // var thisurl = "https://jsonplaceholder.typicode.com/posts";
+
+    var thisurl = "https://api.adsabs.harvard.edu/v1/search/query?q=author%3Amart%C3%ADnez+neutron+star"
+
+    //var thisheader = "Authorization: Bearer " + params.token + "";
+
+    $.ajax({
+        url: "https://api.adsabs.harvard.edu/v1/search/query?q=author%3Amart%C3%ADnez+neutron+star",
+        beforeSend: function(xhr) {
+             xhr.setRequestHeader("Authorization", "Bearer GEPfSqv6hnDSBu9xQmXIagITrsxVyCDBg6VmiJNW")
+        }, success: function(data){
+            //alert(data);
+            //alert('success ajax')
+            //process the JSON data etc
+        }, error: function (xhr) {
+            //alert(xhr.status);
+            //alert(xhr.readyState);
+            //alert('no success ajax');
+      }
+    })
+    alert("done1")
+
+
+    const xhr = new XMLHttpRequest();
+    xhr.open("GET", "https://api.adsabs.harvard.edu/v1/search/query?q=star");
+    xhr.setRequestHeader('Authorization', 'Bearer GEPfSqv6hnDSBu9xQmXIagITrsxVyCDBg6VmiJNW');
+    //xhr.responseType = "json";
+    xhr.onload = function() {
+        alert(xhr.status);
+        if (xhr.readyState == 4 && xhr.status == 200) {
+            const data = xhr.response;
+            alert('success')
+            alert(data.length)
+        } else {
+            console.log(`Error: ${xhr.status}`);
+            alert('no success')
+        }
+    };
+    xhr.onerror = function() {
+        alert("Request failed");
+        alert(xhr.status)
+    };
+    xhr.send()
+    alert('done')
+    
+</script>
+
 
 </head>
 
@@ -96,11 +165,9 @@
 
     <!-- Header-->
     <div class="container-fluid text-bg-dark d-flex align-items-center imghead-parallax" style="height: 50vh;">
-        <div class="container-fluid text-start" style="width: 95vw; position:absolute; bottom: 15vh">
-            <h1 class="titlefont display-3 fw-bold text-white text-center">Welcome</h1>
-            <p class="lead fs-3 text-white text-center">I explore the formation and evolution of galaxies through cosmic time.</p>
-            <p class="lead fs-4 text-white text-center"><i class="bi fs-1 bi-arrow-down-circle-fill"></i></p>
-
+        <div class="container-fluid text-start" style="width: 95vw; position:absolute; bottom: 50%">
+            <h1 class="titlefont display-5 fw-bold text-white">Publications</h1>
+            <!--<p class="lead fs-4 text-white">I explore the formation and evolution of galaxies through cosmic time.</p>-->
         </div>
     </div>
     <!-- End Header -->
@@ -108,56 +175,9 @@
     <!-- Content -->
     <div class="bg-white p-5">
         
-        <p class="fs-5 text-justify"> I am currently an assistant research faculty (former post-doctoral researcher and SNSF post-doctoral fellow) at the Infrared Processing and Analysis Center (<a href="http://ipac.caltech.edu" target="_blank">IPAC</a>) at Caltech. My main interests include early galaxy formation at very high redshifts and the physics of star-formation quenching in massive galaxies at intermediate redshifts. I am the U.S. lead principal investigator of <a href="http://alpine.ipac.caltech.edu" target="_blank">ALPINE</a>, a 70-hour program with ALMA to study gas and dust in galaxies in the early universe.
+        <p class="fs-5 text-justify">List of publications
         </p>
 
-
-        <div class="container text-center mt-5">
-            <div class="row row-cols-1  row-cols-sm-2 row-cols-md-2 row-cols-lg-3">
-
-              <div class="col">
-                <div class="card rounded-5 mb-3 shadow-sm">
-                    <div class="card-header fs-4 fw-bold bg-light text-dark">Science Highlights</div>
-                    <div class="card-body bg-white">
-                        <!-- <h5 class="card-title fw-bold">Science Highlights </h5> -->
-                        <p class="lh-sm fs-5 text-justify">New JWST integral field unit (IFU) spectroscopic observations of ALPINE galaxies will be carried out in April/May 2024 as part of our 60h JWST cycle 2 program! Stay tuned!</p>
-                    </div>
-                    <div class="card-footer border-0 mb-2 bg-white">
-                        <a href="#" class="btn btn-blue fs-5">more highlights!</a>
-                    </div>
-                </div>
-              </div>
-
-
-              <div class="col">
-                <div class="card rounded-3 mb-3 shadow-sm">
-                    <div class="card-header fs-4 fw-bold bg-light text-dark">Research</div>
-                    <div class="card-body  bg-white">
-                        <!-- <h5 class="card-title fw-bold">Science Highlights </h5> -->
-                        <p class="lh-sm  fs-5 text-justify">My research focusses mainly on the study of the formation and evolution of galaxies in the very early Universe and on understanding the mechanisms that cease the their star formation at later times.</p>
-                    </div>
-                    <div class="card-footer border-0 mb-2 bg-white">
-                        <a href="#" class="btn btn-blue fs-5">learn more!</a>
-                    </div>
-                </div>
-              </div>
-
-              <div class="col">
-                <div class="card rounded-3 mb-3 shadow-sm">
-                    <div class="card-header fs-4 fw-bold bg-light text-dark">Outreach</div>
-                    <div class="card-body  bg-white">
-                        <!-- <h5 class="card-title fw-bold">Science Highlights </h5> -->
-                        <p class="lh-sm  fs-5 text-justify">Interested in learning more about astronomy? I regularly give astronomy talks for the general public as well as for schools. I am also part of <a href="https://science.nasa.gov/science-activation-team/nasa-community-college-network" target="_blank">NASA's Community College Network</a>, which provides extensive materials for teachers and the public.</p>
-                    </div>
-                    <div class="card-footer border-0 mb-2 bg-white">
-                        <a href="#" class="btn btn-blue fs-5">check it out!</a>
-                    </div>
-                </div>
-              </div>
-
-            </div>
-        </div>
-        <BR><BR>
 
     </div>
     <!-- End Content -->
@@ -186,6 +206,7 @@
 </footer>
 
 <!-- END FOOTER -->
+
 
         
 </body>
