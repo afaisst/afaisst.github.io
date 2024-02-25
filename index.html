@@ -49,6 +49,25 @@
                 font-size: 3.5rem;
             }
         }
+        
+        .button-gradient {
+            color:linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
+            animation: color-change 10s ease infinite;
+        }
+        @keyframes color-change {
+            0% { color: rgb(151, 213, 255); }
+            33% { color: rgb(255, 155, 185); }
+            66% { color: #23d5ab; }
+            100% { color: rgb(151, 213, 255);; }
+        }
+
+        @keyframes gradient {
+            0% { color: #ee7752; }
+            25% { color: #e73c7e; }
+            50% { color: #23a6d5; }
+            750% { color: #23d5ab; }
+            100% { color: #ee7752; }
+        }
     </style>
 
 
@@ -94,12 +113,12 @@
 <!-- MAIN -->
 <main class="">
 
-    <!-- Header-->
-    <div class="container-fluid text-bg-dark d-flex align-items-center imghead-parallax" style="height: 50vh;">
+    <!-- Header imghead-parallax-->
+    <div class="container-fluid text-bg-dark d-flex align-items-center imghead-parallax" style="height: 100vh;">
         <div class="container-fluid text-start" style="width: 95vw; position:absolute; bottom: 15vh">
-            <h1 class="titlefont display-3 fw-bold text-white text-center">Welcome</h1>
-            <p class="lead fs-3 text-white text-center">I explore the formation and evolution of galaxies through cosmic time.</p>
-            <p class="lead fs-4 text-white text-center"><i class="bi fs-1 bi-arrow-down-circle-fill"></i></p>
+            <h1 class="titlefont display-3 fw-bold text-white text-center ">Welcome</h1>
+            <p class="lead fs-3 text-white text-center ">I explore the formation and evolution of galaxies through cosmic time.</p>
+            <p class="text-center button-gradient" style="font-size: 5em"><i class="bi bi-arrow-down-circle-fill"></i></p>
 
         </div>
     </div>
