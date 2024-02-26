@@ -86,6 +86,9 @@ cursor: help;
 .bg-orange {
 background-color: #fd7e14 !important;
 }
+.bg-blue {
+    background-color: #d1e8fd !important;
+    }
 .text-orange {
 color: #fd7e14 !important;
 }
