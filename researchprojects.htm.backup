@@ -21,7 +21,7 @@
     <script src="https://kit.fontawesome.com/ceedc74733.js" crossorigin="anonymous"></script>
     
     <!-- Get Bootstrap -->
-    <link href="https://getbootstrap.com/docs/5.2/assets/css/docs.css" rel="stylesheet">
+    <link href="https://getbootstrap.com/docs/5.3/assets/css/docs.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.2/font/bootstrap-icons.css">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js" integrity="sha384-IQsoLXl5PILFhosVNubq5LC7Qb9DXgDA9i+tQ8Zj3iwWAwPtgFTxbJ8NT4GN1R8p" crossorigin="anonymous"></script>
@@ -49,76 +49,8 @@
                 font-size: 3.5rem;
             }
         }
+
     </style>
-
-<script>
-
-
-
-    var params = {
-        "author":"Faisst, A",
-        "year1":2014,
-        "year2":2030,
-        "pos1":1,
-        "pos2":3,
-        "fields":"author,title,year,doctype,bibstem,issue,volume,page,bibcode,pubdate",
-        "rows":2000,
-        "token":"GEPfSqv6hnDSBu9xQmXIagITrsxVyCDBg6VmiJNW"
-    };
-
-    
-
-    // var search_author = params.author str_replace(" " , "+" , $params_json->author);
-    var search_author = "Faisst,+A";
-    
-    //var thisurl = "https://api.adsabs.harvard.edu/v1/search/query?q=pos%28author:%22" + search_author + "%22," + params.pos1 + "," + params.pos2 + "%29+year%3A%5B" + params.year1 + "%20TO%20" + params.year2 + "%5D&fl=" + params.fields + "&rows=" + params.rows + "&sort=date+desc";
-    // var thisurl = "https://jsonplaceholder.typicode.com/users"
-    // var thisurl = "https://jsonplaceholder.typicode.com/posts";
-
-    var thisurl = "https://api.adsabs.harvard.edu/v1/search/query?q=author%3Amart%C3%ADnez+neutron+star"
-
-    //var thisheader = "Authorization: Bearer " + params.token + "";
-
-    $.ajax({
-        url: "https://api.adsabs.harvard.edu/v1/search/query?q=author%3Amart%C3%ADnez+neutron+star",
-        beforeSend: function(xhr) {
-             xhr.setRequestHeader("Authorization", "Bearer GEPfSqv6hnDSBu9xQmXIagITrsxVyCDBg6VmiJNW")
-        }, success: function(data){
-            //alert(data);
-            //alert('success ajax')
-            //process the JSON data etc
-        }, error: function (xhr) {
-            //alert(xhr.status);
-            //alert(xhr.readyState);
-            //alert('no success ajax');
-      }
-    })
-    alert("done1")
-
-
-    const xhr = new XMLHttpRequest();
-    xhr.open("GET", "https://api.adsabs.harvard.edu/v1/search/query?q=star");
-    xhr.setRequestHeader('Authorization', 'Bearer GEPfSqv6hnDSBu9xQmXIagITrsxVyCDBg6VmiJNW');
-    //xhr.responseType = "json";
-    xhr.onload = function() {
-        alert(xhr.status);
-        if (xhr.readyState == 4 && xhr.status == 200) {
-            const data = xhr.response;
-            alert('success')
-            alert(data.length)
-        } else {
-            console.log(`Error: ${xhr.status}`);
-            alert('no success')
-        }
-    };
-    xhr.onerror = function() {
-        alert("Request failed");
-        alert(xhr.status)
-    };
-    xhr.send()
-    alert('done')
-    
-</script>
 
 
 </head>
@@ -166,18 +98,70 @@
     <!-- Header-->
     <div class="container-fluid text-bg-dark d-flex align-items-center imghead2-parallax" style="height: 50vh;">
         <div class="container-fluid text-start" style="width: 95vw; position:absolute; bottom: 50%">
-            <h1 class="titlefont display-5 fw-bold text-white">Publications</h1>
-            <!--<p class="lead fs-4 text-white">I explore the formation and evolution of galaxies through cosmic time.</p>-->
+            <h1 class="titlefont display-5 fw-bold text-white">Projects</h1>
+            <!-- <p class="lead fs-4 text-white">subtitle</p> -->
         </div>
     </div>
     <!-- End Header -->
 
     <!-- Content -->
-    <div class="bg-white p-5">
-        
-        <p class="fs-5 text-justify">List of publications
+    <div class="bg-light text-dark p-5">
+
+        <p class="fs-5 text-justify">
+            I work with my group on several projects involving all major telescopes on the ground and in space. Furthermore, I am involved in the next generation of telescopes by contributing to their science cases.
         </p>
 
+
+        <div class="row row-cols-xl-2 row-cols-lg-2 row-cols-md-2 row-cols-sm-1">
+
+            <div class="col pt-2 pb-4  d-flex align-items-stretch">
+                <div class="card text-center pt-2" style="width: 100%;">
+                    <center><img src="./headers/ALPINE_logo.png" class="pb-2" style="width: 200px; "  alt="..."></center>
+                    <div class="card-body">
+                    <h5 class="card-title">ALPINE-ALMA and ALPINE-CRISTAL JWST Program</h5>
+                    <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
+                    <a href="#" class="btn btn-primary">Go somewhere</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col pt-2 pb-4  d-flex align-items-stretch">
+                <div class="card text-center pt-2" style="width: 100%;">
+                    <center><img src="./headers/CHAMPS_logo.png" class="pb-2" style="height: 240px; "  alt="..."></center>
+                    <div class="card-body">
+                    <h5 class="card-title">CHAMPS: Exploring the Dusty Universe</h5>
+                    <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
+                    <a href="#" class="btn btn-primary">Go somewhere</a>
+                    </div>
+                </div>
+            </div>
+
+
+            <div class="col pt-2 pb-4  d-flex align-items-stretch">
+                <div class="card text-center pt-2" style="width: 100%;">
+                    <center><img src="./headers/COSMOSWeb_logo.png" class="pb-2" style="height: 200px; "  alt="..."></center>
+                    <div class="card-body">
+                    <h5 class="card-title">COSMOS-Web JWST Survey</h5>
+                    <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
+                    <a href="#" class="btn btn-primary">Go somewhere</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col pt-2 pb-4  d-flex align-items-stretch">
+                <div class="card text-center pt-2" style="width: 100%;">
+                    <center><img src="./headers/SPHEREx_logo.png" class="pb-2" style="height: 200px; "  alt="..."></center>
+                    <div class="card-body">
+                    <h5 class="card-title">SPHEREx: All-Sky Infrared Survey</h5>
+                    <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
+                    <a href="#" class="btn btn-primary">Go somewhere</a>
+                    </div>
+                </div>
+            </div>
+
+
+
+        </div>
 
     </div>
     <!-- End Content -->
@@ -188,7 +172,7 @@
 
 
 <!-- FOOTER -->
-<footer>
+<footer class="">
 
     <div class="bg-dark text-center" style="min-height: 130px;">
 
@@ -206,7 +190,6 @@
 </footer>
 
 <!-- END FOOTER -->
-
 
         
 </body>

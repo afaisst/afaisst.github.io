@@ -51,75 +51,34 @@
         }
     </style>
 
-<script>
+<!-- RETRIEVE PAPERS --->
+<?php
 
+## Import functions
+require './pub_code/code.php';
 
+## Define Search Parameters
+$params = '
+{
+    "author":"Faisst, A",
+    "year1":2014,
+    "year2":2030,
+    "pos1":1,
+    "pos2":3,
+    "fields":"author,title,year,doctype,bibstem,issue,volume,page,bibcode,pubdate",
+    "rows":2000,
+    "token":"GEPfSqv6hnDSBu9xQmXIagITrsxVyCDBg6VmiJNW"
+}
+';
 
-    var params = {
-        "author":"Faisst, A",
-        "year1":2014,
-        "year2":2030,
-        "pos1":1,
-        "pos2":3,
-        "fields":"author,title,year,doctype,bibstem,issue,volume,page,bibcode,pubdate",
-        "rows":2000,
-        "token":"GEPfSqv6hnDSBu9xQmXIagITrsxVyCDBg6VmiJNW"
-    };
+## Perform Search
+$results = getpapers($params);
 
-    
+## Create HTML
+$html_output = createHTML($results);
 
-    // var search_author = params.author str_replace(" " , "+" , $params_json->author);
-    var search_author = "Faisst,+A";
-    
-    //var thisurl = "https://api.adsabs.harvard.edu/v1/search/query?q=pos%28author:%22" + search_author + "%22," + params.pos1 + "," + params.pos2 + "%29+year%3A%5B" + params.year1 + "%20TO%20" + params.year2 + "%5D&fl=" + params.fields + "&rows=" + params.rows + "&sort=date+desc";
-    // var thisurl = "https://jsonplaceholder.typicode.com/users"
-    // var thisurl = "https://jsonplaceholder.typicode.com/posts";
-
-    var thisurl = "https://api.adsabs.harvard.edu/v1/search/query?q=author%3Amart%C3%ADnez+neutron+star"
-
-    //var thisheader = "Authorization: Bearer " + params.token + "";
-
-    $.ajax({
-        url: "https://api.adsabs.harvard.edu/v1/search/query?q=author%3Amart%C3%ADnez+neutron+star",
-        beforeSend: function(xhr) {
-             xhr.setRequestHeader("Authorization", "Bearer GEPfSqv6hnDSBu9xQmXIagITrsxVyCDBg6VmiJNW")
-        }, success: function(data){
-            //alert(data);
-            //alert('success ajax')
-            //process the JSON data etc
-        }, error: function (xhr) {
-            //alert(xhr.status);
-            //alert(xhr.readyState);
-            //alert('no success ajax');
-      }
-    })
-    alert("done1")
-
-
-    const xhr = new XMLHttpRequest();
-    xhr.open("GET", "https://api.adsabs.harvard.edu/v1/search/query?q=star");
-    xhr.setRequestHeader('Authorization', 'Bearer GEPfSqv6hnDSBu9xQmXIagITrsxVyCDBg6VmiJNW');
-    //xhr.responseType = "json";
-    xhr.onload = function() {
-        alert(xhr.status);
-        if (xhr.readyState == 4 && xhr.status == 200) {
-            const data = xhr.response;
-            alert('success')
-            alert(data.length)
-        } else {
-            console.log(`Error: ${xhr.status}`);
-            alert('no success')
-        }
-    };
-    xhr.onerror = function() {
-        alert("Request failed");
-        alert(xhr.status)
-    };
-    xhr.send()
-    alert('done')
-    
-</script>
-
+?>
+<!-- END: RETRIEVE PAPERS -->
 
 </head>
 
@@ -175,9 +134,15 @@
     <!-- Content -->
     <div class="bg-white p-5">
         
-        <p class="fs-5 text-justify">List of publications
+        <p class="fs-5 text-justify">Below a complete list of <b> <?php echo($html_output[0]); ?> </b> main publications (first, second, and third author papers). For a list of all papers, please visit <a href="https://ui.adsabs.harvard.edu/search/q=%20author%3A%22Faisst%2C%20Andreas%22%20%20year%3A2010-&sort=date%20desc%2C%20bibcode%20desc&p_=0" target="_blank">NASA/ADS</a> directly.
         </p>
 
+        <p class="fs-5 text-justify">
+        <?php
+        #echo("Number of entries: " . $html_output[0] . "<BR><BR>");
+        echo($html_output[1]);
+        ?>
+        </p>
 
     </div>
     <!-- End Content -->
