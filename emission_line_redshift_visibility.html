@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Emission-Line Redshift Visibility</title>
+<style>
+  :root {
+    --bg: #f6f7fb; --panel: #fff; --text: #20242c; --muted: #667085;
+    --border: #d9dde5; --accent: #356ae6; --accent2: #244fb5;
+    --bar: #4c78d8; --bar2: #7f9fe9; --danger: #c93636;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; padding: 28px; background: var(--bg); color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  }
+  .wrap { max-width: 1200px; margin: auto; }
+  h1 { margin: 0 0 6px; font-size: 27px; }
+  .subtitle { color: var(--muted); margin-bottom: 22px; }
+  .grid { display: grid; grid-template-columns: 340px 1fr; gap: 18px; }
+  .panel {
+    background: var(--panel); border: 1px solid var(--border);
+    border-radius: 12px; padding: 18px; box-shadow: 0 2px 8px #00000008;
+  }
+  h2 { font-size: 16px; margin: 0 0 12px; }
+  h3 { font-size: 14px; margin: 18px 0 8px; }
+  label { font-size: 13px; }
+  textarea, input {
+    width: 100%; border: 1px solid var(--border); border-radius: 7px;
+    padding: 9px 10px; font: inherit; background: #fff;
+  }
+  textarea { resize: vertical; min-height: 125px; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+  .hint { color: var(--muted); font-size: 12px; margin-top: 6px; line-height: 1.4; }
+  .window-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr 34px;
+    gap: 7px;
+    align-items: center;
+    margin-bottom: 7px;
+  }
+  .window-row input { min-width: 0; }
+  .window-btn {
+    width: 34px;
+    height: 34px;
+    padding: 0;
+    font-size: 19px;
+    line-height: 1;
+    background: #eef1f7;
+    color: #303746;
+  }
+  .window-btn:hover { background: #e2e6ee; }
+  .line-list { display: grid; grid-template-columns: 1fr 1fr; gap: 7px 12px; }
+  .check { display: flex; align-items: center; gap: 7px; }
+  .check input { width: auto; }
+  .custom-row { display: grid; grid-template-columns: 1fr 95px auto; gap: 7px; }
+  button {
+    border: 0; border-radius: 7px; padding: 9px 12px; cursor: pointer;
+    font-weight: 600; background: var(--accent); color: white;
+  }
+  button:hover { background: var(--accent2); }
+  button.secondary { background: #eef1f7; color: #303746; }
+  button.secondary:hover { background: #e2e6ee; }
+  .actions { display: flex; gap: 8px; margin-top: 16px; }
+  #plotWrap { overflow-x: auto; position: relative; }
+  canvas { display: block; width: 100%; min-height: 430px; cursor: default; }
+  #tooltip {
+    position: fixed;
+    display: none;
+    pointer-events: none;
+    z-index: 20;
+    background: rgba(32,36,44,.96);
+    color: white;
+    padding: 8px 10px;
+    border-radius: 7px;
+    font-size: 12px;
+    line-height: 1.4;
+    white-space: nowrap;
+    box-shadow: 0 3px 12px #0004;
+  }
+  .status { color: var(--danger); font-size: 13px; margin-top: 8px; min-height: 18px; }
+  table { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 13px; }
+  th, td { padding: 8px 7px; border-bottom: 1px solid #e8ebf0; text-align: left; }
+  th { color: var(--muted); font-weight: 600; }
+  code { background: #f0f2f6; padding: 1px 4px; border-radius: 4px; }
+  @media (max-width: 800px) {
+    body { padding: 14px; }
+    .grid { grid-template-columns: 1fr; }
+    .custom-row { grid-template-columns: 1fr 95px; }
+    .custom-row button { grid-column: 1 / -1; }
+    .window-row { grid-template-columns: 1fr 1fr 34px; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Emission-Line Redshift Visibility</h1>
+  <div class="subtitle">Enter observed-frame wavelength windows and select the emission lines you want to display.</div>
+
+  <div class="grid">
+    <div class="panel">
+      <h2>1. Wavelength windows</h2>
+      <div id="windowList"></div>
+      <button id="addWindow" type="button" class="secondary" style="margin-top:9px;" >＋ Add wavelength window</button>
+      <div class="hint">Observed wavelength in <b>μm</b>. Each row defines one continuous wavelength window.</div>
+
+      <h3>2. Emission lines</h3>
+      <div class="line-list" id="lineList"></div>
+
+      <h3>Custom line</h3>
+      <div class="custom-row">
+        <input id="customName" placeholder="Line name, e.g. [NeIII]">
+        <input id="customWave" type="number" step="any" placeholder="Å">
+        <button id="addLine">Add</button>
+      </div>
+      <div class="hint">Rest wavelength is entered in Ångström.</div>
+
+      <div class="actions">
+        <button id="plotBtn">Update plot</button>
+        <button id="resetBtn" class="secondary">Reset</button>
+      </div>
+      <div id="status" class="status"></div>
+    </div>
+
+    <div class="panel">
+      <h2>Visibility in redshift</h2>
+      <button id="resetZoom" class="secondary" style="margin-bottom:10px;">Reset zoom</button>
+      <div id="plotWrap"><canvas id="plot"></canvas></div>
+      <div id="tooltip"></div>
+      <div id="tableWrap"></div>
+      <button id="copyPython" class="secondary" style="margin-top:12px;">Copy as Python dictionary</button>
+      <div id="copyStatus" style="color:#667085;font-size:12px;margin-top:6px;min-height:17px;"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+const defaultLines = {
+  "[OII]": 3727,
+  "Ca K": 3934,
+  "Ca H": 3969,
+  "4000A break": 4000,
+  "Mg II": 2799,
+  "Hb": 4861,
+  "[OIII]": 5007,
+  "Ha": 6563,
+  "[NII]": 6584,
+  "[SII] 6717": 6717,
+  "[SII] 6731": 6731,
+  "Paδ": 10049,
+  "Paγ": 10938,
+  "Paβ": 12818,
+  "Paα": 18756
+};
+
+const lineList = document.getElementById("lineList");
+const windowList = document.getElementById("windowList");
+const statusEl = document.getElementById("status");
+const canvas = document.getElementById("plot");
+const ctx = canvas.getContext("2d");
+const tooltip = document.getElementById("tooltip");
+
+let customLines = {};
+let plotState = null;
+let currentData = [];
+let zoomRange = null; // [zmin, zmax] after clicking a bar
+
+
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"']/g, c =>
+    ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])
+  );
+}
+
+function makeCheckboxes() {
+  lineList.innerHTML = "";
+
+  for (const [name, wave] of Object.entries({...defaultLines, ...customLines})) {
+    const label = document.createElement("label");
+    label.className = "check";
+
+    const checkbox = document.createElement("input");
+    checkbox.type = "checkbox";
+    checkbox.checked = ["[OII]", "[OIII]", "Hb", "Ha"].includes(name);
+    checkbox.dataset.name = name;
+
+    const span = document.createElement("span");
+    span.innerHTML = `${escapeHtml(name)} <small style="color:#667085;">(${wave} Å)</small>`;
+
+    label.appendChild(checkbox);
+    label.appendChild(span);
+    lineList.appendChild(label);
+  }
+}
+
+function addWindow(lower = "", upper = "") {
+  const row = document.createElement("div");
+  row.className = "window-row";
+
+  const lowerInput = document.createElement("input");
+  lowerInput.type = "number";
+  lowerInput.step = "any";
+  lowerInput.min = "0";
+  lowerInput.placeholder = "Lower μm";
+  lowerInput.value = lower;
+
+  const upperInput = document.createElement("input");
+  upperInput.type = "number";
+  upperInput.step = "any";
+  upperInput.min = "0";
+  upperInput.placeholder = "Upper μm";
+  upperInput.value = upper;
+
+  const minus = document.createElement("button");
+  minus.type = "button";
+  minus.className = "window-btn";
+  minus.title = "Remove wavelength window";
+  minus.textContent = "−";
+
+  minus.onclick = function(event) {
+    event.preventDefault();
+    event.stopPropagation();
+
+    if (windowList.children.length > 1) {
+      row.remove();
+    } else {
+      lowerInput.value = "";
+      upperInput.value = "";
+    }
+    update();
+  };
+
+  lowerInput.oninput = update;
+  upperInput.oninput = update;
+
+  row.appendChild(lowerInput);
+  row.appendChild(upperInput);
+  row.appendChild(minus);
+  windowList.appendChild(row);
+}
+
+function addWavelengthWindow() {
+  addWindow("", "");
+  update();
+}
+
+function parseWindows() {
+  const rows = Array.from(windowList.children);
+  const windows = [];
+
+  rows.forEach((row, i) => {
+    const inputs = row.querySelectorAll("input");
+    const aText = inputs[0].value.trim();
+    const bText = inputs[1].value.trim();
+
+    if (!aText && !bText) return;
+
+    const a = Number(aText);
+    const b = Number(bText);
+
+    if (!Number.isFinite(a) || !Number.isFinite(b) || a <= 0 || b <= a) {
+      throw new Error(`Window ${i + 1} must satisfy 0 < lower < upper.`);
+    }
+
+    windows.push([a, b]);
+  });
+
+  if (!windows.length) {
+    throw new Error("Please provide at least one wavelength window.");
+  }
+
+  return windows;
+}
+
+function selectedLines() {
+  const all = {...defaultLines, ...customLines};
+
+  return Array.from(lineList.querySelectorAll("input:checked"))
+    .map(box => [box.dataset.name, all[box.dataset.name]])
+    .filter(x => Number.isFinite(Number(x[1])));
+}
+
+function getIntervals(restAngstrom, windows) {
+  const restUm = restAngstrom / 10000;
+
+  return windows
+    .map(w => [w[0] / restUm - 1, w[1] / restUm - 1])
+    .filter(x => x[1] >= 0)
+    .map(x => [Math.max(0, x[0]), x[1]]);
+}
+
+function niceStep(range) {
+  const rough = range / 8;
+  const p = Math.pow(10, Math.floor(Math.log10(rough)));
+  const n = rough / p;
+  return (n < 1.5 ? 1 : n < 3 ? 2 : n < 7 ? 5 : 10) * p;
+}
+
+function formatNum(x) {
+  if (Math.abs(x) >= 100) return x.toFixed(0);
+  if (Math.abs(x) >= 10) return x.toFixed(1);
+  if (Math.abs(x) >= 1) return x.toFixed(2);
+  return x.toFixed(3);
+}
+
+function drawPlot(data) {
+  const dpr = window.devicePixelRatio || 1;
+  const cssW = Math.max(650, canvas.parentElement.clientWidth);
+  const cssH = Math.max(400, 110 + data.length * 52);
+
+  canvas.style.width = cssW + "px";
+  canvas.style.height = cssH + "px";
+  canvas.width = cssW * dpr;
+  canvas.height = cssH * dpr;
+
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  ctx.clearRect(0, 0, cssW, cssH);
+
+  const left = 82, right = 25, top = 38, bottom = 60;
+  const pw = cssW - left - right;
+  const ph = cssH - top - bottom;
+
+  const allIntervals = data.flatMap(d => d.intervals);
+  let fullZmax = Math.max(1, ...allIntervals.map(x => x[1]));
+  fullZmax *= 1.04;
+
+  // Use the clicked redshift range when zoomed; otherwise show the full range.
+  let zmin = zoomRange ? zoomRange[0] : 0;
+  let zmax = zoomRange ? zoomRange[1] : fullZmax;
+
+  if (zmax <= zmin) {
+    zmin = 0;
+    zmax = fullZmax;
+  }
+
+  const sx = z => left + (z - zmin) / (zmax - zmin) * pw;
+  const rowH = ph / Math.max(data.length, 1);
+
+  plotState = { bars: [], data, zmin, zmax, fullZmax };
+
+  ctx.font = "12px -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif";
+  ctx.textBaseline = "middle";
+
+  const step = niceStep(zmax);
+
+  ctx.strokeStyle = "#e6e9ef";
+  ctx.fillStyle = "#667085";
+  ctx.lineWidth = 1;
+
+  const firstTick = Math.ceil(zmin / step) * step;
+  for (let z = firstTick; z <= zmax + step * 0.01; z += step) {
+    const x = sx(z);
+    ctx.beginPath();
+    ctx.moveTo(x, top);
+    ctx.lineTo(x, top + ph);
+    ctx.stroke();
+
+    ctx.textAlign = "center";
+    ctx.fillText(formatNum(z), x, cssH - 29);
+  }
+
+  ctx.strokeStyle = "#7b8492";
+  ctx.beginPath();
+  ctx.moveTo(left, top);
+  ctx.lineTo(left, top + ph);
+  ctx.lineTo(left + pw, top + ph);
+  ctx.stroke();
+
+  data.forEach((d, i) => {
+    const y = top + rowH * (i + 0.5);
+
+    ctx.fillStyle = "#20242c";
+    ctx.textAlign = "right";
+    ctx.fillText(d.name, left - 12, y);
+
+    d.intervals.forEach((iv, j) => {
+      // Clip the displayed bar to the current x-axis range.
+      const visibleMin = Math.max(iv[0], zmin);
+      const visibleMax = Math.min(iv[1], zmax);
+      if (visibleMax <= visibleMin) return;
+
+      const x1 = sx(visibleMin);
+      const x2 = sx(visibleMax);
+      const bh = Math.min(24, rowH * 0.52);
+
+      plotState.bars.push({
+        x1, x2,
+        y1: y - bh / 2,
+        y2: y + bh / 2,
+        name: d.name,
+        zmin: iv[0],
+        zmax: iv[1]
+      });
+
+      ctx.fillStyle = j % 2 ? "#7f9fe9" : "#4c78d8";
+      ctx.fillRect(x1, y - bh / 2, Math.max(1, x2 - x1), bh);
+
+      // Only show the numerical redshift range after the user has clicked a bar.
+      if (zoomRange && x2 - x1 > 45) {
+        ctx.fillStyle = "#fff";
+        ctx.textAlign = "center";
+        ctx.fillText(
+          `${formatNum(iv[0])}–${formatNum(iv[1])}`,
+          (x1 + x2) / 2,
+          y
+        );
+      }
+    });
+  });
+
+  ctx.fillStyle = "#20242c";
+  ctx.textAlign = "center";
+  ctx.font = "13px -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif";
+  ctx.fillText("Redshift, z", left + pw / 2, cssH - 9);
+
+  ctx.save();
+  ctx.translate(18, top + ph / 2);
+  ctx.rotate(-Math.PI / 2);
+  ctx.fillText("Emission line", 0, 0);
+  ctx.restore();
+}
+
+function renderTable(data) {
+  let html =
+    `<table><thead><tr><th>Line</th>` +
+    `<th>Visible redshift range(s)</th></tr></thead><tbody>`;
+
+  for (const d of data) {
+    const ranges = d.intervals.length
+      ? d.intervals.map(x =>
+          `[${formatNum(x[0])}, ${formatNum(x[1])}]`
+        ).join("<br>")
+      : "Not visible for z ≥ 0";
+
+    html += `<tr><td>${escapeHtml(d.name)}</td><td>${ranges}</td></tr>`;
+  }
+
+  html += "</tbody></table>";
+  document.getElementById("tableWrap").innerHTML = html;
+}
+
+function makePythonDictionary(data) {
+  const entries = data.map(d => {
+    const ranges = d.intervals
+      .map(x => `[${x[0]}, ${x[1]}]`)
+      .join(", ");
+    return `    ${JSON.stringify(d.name)}: [${ranges}]`;
+  });
+
+  return "{\n" + entries.join(",\n") + "\n}";
+}
+
+
+function update() {
+  statusEl.textContent = "";
+
+  try {
+    const windows = parseWindows();
+    const lines = selectedLines();
+
+    if (!lines.length) {
+      throw new Error("Select at least one emission line.");
+    }
+
+    const data = lines.map(([name, wave]) => ({
+      name,
+      wave: Number(wave),
+      intervals: getIntervals(Number(wave), windows)
+    }));
+
+    currentData = data;
+    drawPlot(data);
+    renderTable(data);
+  } catch (e) {
+    statusEl.textContent = e.message;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    document.getElementById("tableWrap").innerHTML = "";
+    plotState = null;
+  }
+}
+
+document.getElementById("addWindow").onclick = function(event) {
+  event.preventDefault();
+  addWavelengthWindow();
+};
+
+
+document.getElementById("resetZoom").onclick = function() {
+  zoomRange = null;
+  update();
+};
+
+document.getElementById("plotBtn").onclick = update;
+lineList.onchange = update;
+
+document.getElementById("addLine").onclick = function() {
+  const nameInput = document.getElementById("customName");
+  const waveInput = document.getElementById("customWave");
+
+  const name = nameInput.value.trim();
+  const wave = Number(waveInput.value);
+
+  if (!name || !Number.isFinite(wave) || wave <= 0) {
+    statusEl.textContent = "Enter a line name and a positive rest wavelength.";
+    return;
+  }
+
+  customLines[name] = wave;
+  makeCheckboxes();
+  update();
+
+  nameInput.value = "";
+  waveInput.value = "";
+};
+
+document.getElementById("resetBtn").onclick = function() {
+  zoomRange = null;
+  windowList.innerHTML = "";
+
+  addWindow(1, 1.1);
+  addWindow(1.2, 1.35);
+  addWindow(1.5, 1.75);
+  addWindow(2.2, 2.35);
+
+  customLines = {};
+  makeCheckboxes();
+  update();
+};
+
+
+canvas.addEventListener("click", function(event) {
+  if (!plotState) return;
+
+  const rect = canvas.getBoundingClientRect();
+  const x = event.clientX - rect.left;
+  const y = event.clientY - rect.top;
+
+  const hit = plotState.bars.find(b =>
+    x >= b.x1 && x <= b.x2 &&
+    y >= b.y1 && y <= b.y2
+  );
+
+  // If already zoomed, any click on the plot resets to the default view.
+  if (zoomRange) {
+    zoomRange = null;
+    update();
+    return;
+  }
+
+  if (!hit) return;
+
+  // Add 8% of the selected interval as a margin on both sides.
+  const width = hit.zmax - hit.zmin;
+  const margin = Math.max(width * 0.08, 0.01);
+
+  zoomRange = [
+    Math.max(0, hit.zmin - margin),
+    hit.zmax + margin
+  ];
+
+  update();
+});
+
+canvas.addEventListener("mousemove", function(event) {
+  if (!plotState) return;
+
+  const rect = canvas.getBoundingClientRect();
+  const x = event.clientX - rect.left;
+  const y = event.clientY - rect.top;
+
+  const hit = plotState.bars.find(b =>
+    x >= b.x1 && x <= b.x2 &&
+    y >= b.y1 && y <= b.y2
+  );
+
+  if (!hit) {
+    tooltip.style.display = "none";
+    canvas.style.cursor = "default";
+    return;
+  }
+
+  canvas.style.cursor = "pointer";
+  tooltip.innerHTML =
+    `<b>${escapeHtml(hit.name)}</b><br>` +
+    `Redshift: ${formatNum(hit.zmin)} ≤ z ≤ ${formatNum(hit.zmax)}`;
+
+  tooltip.style.display = "block";
+
+  let tx = event.clientX + 12;
+  let ty = event.clientY + 12;
+
+  if (tx + tooltip.offsetWidth > window.innerWidth - 8) {
+    tx = event.clientX - tooltip.offsetWidth - 12;
+  }
+
+  if (ty + tooltip.offsetHeight > window.innerHeight - 8) {
+    ty = event.clientY - tooltip.offsetHeight - 12;
+  }
+
+  tooltip.style.left = tx + "px";
+  tooltip.style.top = ty + "px";
+});
+
+canvas.addEventListener("mouseleave", function() {
+  tooltip.style.display = "none";
+  canvas.style.cursor = "default";
+});
+
+
+document.getElementById("copyPython").onclick = async function() {
+  const copyStatus = document.getElementById("copyStatus");
+
+  if (!currentData.length) {
+    copyStatus.textContent = "Nothing to copy.";
+    return;
+  }
+
+  const text = makePythonDictionary(currentData);
+
+  try {
+    await navigator.clipboard.writeText(text);
+    copyStatus.textContent = "Copied Python dictionary to clipboard.";
+  } catch (err) {
+    // Fallback for browsers that block navigator.clipboard on local files.
+    const area = document.createElement("textarea");
+    area.value = text;
+    area.style.position = "fixed";
+    area.style.left = "-9999px";
+    document.body.appendChild(area);
+    area.select();
+
+    try {
+      document.execCommand("copy");
+      copyStatus.textContent = "Copied Python dictionary to clipboard.";
+    } catch (e) {
+      copyStatus.textContent = "Copy failed. You can select the dictionary from the table/output manually.";
+    }
+
+    area.remove();
+  }
+};
+
+// IMPORTANT: initialize both UI sections immediately.
+addWindow(1, 1.1);
+addWindow(1.2, 1.35);
+addWindow(1.5, 1.75);
+addWindow(2.2, 2.35);
+
+makeCheckboxes();
+update();
+
+window.addEventListener("resize", update);
+</script>
+</body>
+</html>
